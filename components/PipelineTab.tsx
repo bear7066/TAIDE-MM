@@ -31,6 +31,14 @@ export default function PipelineTab({ canEdit }: Props) {
 
   useEffect(() => { reload(); }, []);
 
+  const toDataURL = (file: File): Promise<string> =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+
   const openPicker = (category: string) => {
     pendingCategory.current = category;
     fileInputRef.current?.click();
@@ -45,20 +53,21 @@ export default function PipelineTab({ canEdit }: Props) {
     setUploading(category);
 
     try {
-      const fd = new FormData();
-      fd.append("file", file);
-      const uploadRes = await fetch("/api/pipeline/upload", { method: "POST", body: fd });
-      if (!uploadRes.ok) { alert("上傳失敗"); return; }
-      const { url } = await uploadRes.json();
-
+      const dataUrl = await toDataURL(file);
       const id = `${category}-${Date.now()}`;
-      const saveRes = await fetch("/api/pipeline", {
+      const res = await fetch("/api/pipeline", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ id, category, imageUrl: url }),
+        body: JSON.stringify({ id, category, imageUrl: dataUrl }),
       });
-      if (!saveRes.ok) { alert("儲存失敗"); return; }
+      if (!res.ok) {
+        const body = await res.json().catch(() => ({}));
+        alert(`儲存失敗：${body.error || res.status}`);
+        return;
+      }
       await reload();
+    } catch (err: any) {
+      alert(`上傳失敗：${err.message}`);
     } finally {
       setUploading(null);
     }
