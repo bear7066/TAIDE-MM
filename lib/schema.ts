@@ -122,6 +122,17 @@ export const globalTags = pgTable("global_tags", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+// ─────────────── PIPELINE IMAGES ───────────────
+export const pipelineImages = pgTable("pipeline_images", {
+  id: varchar("id", { length: 64 }).primaryKey(),
+  // 'preprocessing' | 'training' | 'benchmark'
+  category: varchar("category", { length: 32 }).notNull(),
+  title: text("title").default(""),
+  imageUrl: text("image_url").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  createdBy: varchar("created_by", { length: 64 }),
+});
+
 // ─────────────── TYPE EXPORTS ───────────────
 export type Dataset = typeof datasets.$inferSelect;
 export type NewDataset = typeof datasets.$inferInsert;
@@ -134,3 +145,5 @@ export type NewEval = typeof evals.$inferInsert;
 export type Discussion = typeof discussions.$inferSelect;
 export type NewDiscussion = typeof discussions.$inferInsert;
 export type GlobalTag = typeof globalTags.$inferSelect;
+export type PipelineImage = typeof pipelineImages.$inferSelect;
+export type NewPipelineImage = typeof pipelineImages.$inferInsert;

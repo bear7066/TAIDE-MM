@@ -9,11 +9,12 @@ import ModelForm from "./ModelForm";
 import TaskForm from "./TaskForm";
 import EvalForm from "./EvalForm";
 import DiscussionForm from "./DiscussionForm";
+import PipelineTab from "./PipelineTab";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
 import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions";
+type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -32,6 +33,7 @@ export default function Dashboard() {
   const [taskFilter, setTaskFilter] = useState("all");
   const [evalFilter, setEvalFilter] = useState("all");
   const [discFilter, setDiscFilter] = useState("all");
+  const [collapsedPlanned, setCollapsedPlanned] = useState(true);
 
   // Modals
   const [editingDataset, setEditingDataset] = useState<Dataset | null>(null);
@@ -95,6 +97,7 @@ export default function Dashboard() {
     { id: "tasks" as Tab, label: "Tasks", count: tasks.length, wip: taskWip },
     { id: "evals" as Tab, label: "Evals", count: evals.length },
     { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
+    { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
   ];
 
   return (
@@ -257,30 +260,73 @@ export default function Dashboard() {
                 />
 
                 {taskFilter === "all" ? (
-                  <div style={{ display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: 16, alignItems: "start" }}>
-                    {["進行中", "計劃中", "等待中", "完成"].map(status => (
-                      <div key={status}>
-                        <div style={{
-                          display: "flex", alignItems: "center", gap: 8,
-                          marginBottom: 12, paddingBottom: 10,
-                          borderBottom: `1px solid ${STATUS_META[status]?.border || "rgba(255,255,255,0.06)"}`,
-                        }}>
-                          <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_META[status]?.dot, boxShadow: `0 0 5px ${STATUS_META[status]?.dot}` }}></span>
-                          <span style={{ fontSize: 11, fontWeight: 600, color: STATUS_META[status]?.color, fontFamily: "'Space Mono',monospace" }}>{status}</span>
-                          <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace", marginLeft: "auto" }}>{tasks.filter(t => t.status === status).length}</span>
+                  <div style={{ display: "flex", gap: 16, alignItems: "start" }}>
+                    {["進行中", "等待中", "完成", "計劃中"].map(status => {
+                      const collapsed = status === "計劃中" && collapsedPlanned;
+                      const count = tasks.filter(t => t.status === status).length;
+                      return collapsed ? (
+                        <div
+                          key={status}
+                          onClick={() => setCollapsedPlanned(false)}
+                          title="展開計劃中"
+                          style={{
+                            width: 36, flexShrink: 0, alignSelf: "stretch",
+                            minHeight: 120,
+                            display: "flex", flexDirection: "column", alignItems: "center",
+                            justifyContent: "flex-start", paddingTop: 14, gap: 10,
+                            background: "rgba(255,255,255,0.02)",
+                            border: `1px solid ${STATUS_META[status]?.border || "rgba(255,255,255,0.06)"}`,
+                            borderRadius: 10, cursor: "pointer",
+                            transition: "background 0.18s",
+                          }}
+                          onMouseEnter={e => (e.currentTarget.style.background = "rgba(255,255,255,0.04)")}
+                          onMouseLeave={e => (e.currentTarget.style.background = "rgba(255,255,255,0.02)")}
+                        >
+                          <span style={{ width: 6, height: 6, borderRadius: "50%", flexShrink: 0, background: STATUS_META[status]?.dot, boxShadow: `0 0 5px ${STATUS_META[status]?.dot}` }}></span>
+                          <div style={{
+                            writingMode: "vertical-rl", textOrientation: "mixed",
+                            fontSize: 11, fontWeight: 600, color: STATUS_META[status]?.color,
+                            fontFamily: "'Space Mono',monospace", letterSpacing: "0.06em",
+                            userSelect: "none",
+                          }}>{status} {count}</div>
                         </div>
-                        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
-                          {tasks.filter(t => t.status === status).map(t => (
-                            <TaskCard
-                              key={t.id} t={t} datasets={datasets} models={models}
-                              canEdit={canEdit}
-                              onEdit={() => { setEditingTask(t); setShowTaskForm(true); }}
-                              onDelete={() => handleDelete("tasks", t.id, t.name)}
-                            />
-                          ))}
+                      ) : (
+                        <div key={status} style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{
+                            display: "flex", alignItems: "center", gap: 8,
+                            marginBottom: 12, paddingBottom: 10,
+                            borderBottom: `1px solid ${STATUS_META[status]?.border || "rgba(255,255,255,0.06)"}`,
+                          }}>
+                            <span style={{ width: 6, height: 6, borderRadius: "50%", background: STATUS_META[status]?.dot, boxShadow: `0 0 5px ${STATUS_META[status]?.dot}` }}></span>
+                            <span style={{ fontSize: 11, fontWeight: 600, color: STATUS_META[status]?.color, fontFamily: "'Space Mono',monospace" }}>{status}</span>
+                            <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace", marginLeft: "auto" }}>{count}</span>
+                            {status === "計劃中" && (
+                              <button
+                                onClick={() => setCollapsedPlanned(true)}
+                                title="收合"
+                                style={{
+                                  width: 18, height: 18, borderRadius: 4, border: "none",
+                                  background: "transparent", color: "#475569",
+                                  cursor: "pointer", fontSize: 12, lineHeight: 1,
+                                  display: "flex", alignItems: "center", justifyContent: "center",
+                                  padding: 0,
+                                }}
+                              >›</button>
+                            )}
+                          </div>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+                            {tasks.filter(t => t.status === status).map(t => (
+                              <TaskCard
+                                key={t.id} t={t} datasets={datasets} models={models}
+                                canEdit={canEdit}
+                                onEdit={() => { setEditingTask(t); setShowTaskForm(true); }}
+                                onDelete={() => handleDelete("tasks", t.id, t.name)}
+                              />
+                            ))}
+                          </div>
                         </div>
-                      </div>
-                    ))}
+                      );
+                    })}
                   </div>
                 ) : (
                   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(340px,1fr))", gap: 14 }}>
@@ -328,6 +374,17 @@ export default function Dashboard() {
                     <EmptyState text="尚無 evaluation" canEdit={canEdit} onAdd={() => setShowEvalForm(true)} />
                   )}
                 </div>
+              </div>
+            )}
+
+            {/* PIPELINE */}
+            {tab === "pipeline" && (
+              <div>
+                <div style={{ marginBottom: 28 }}>
+                  <div style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace", letterSpacing: "0.16em", marginBottom: 6 }}>WORKFLOW</div>
+                  <div style={{ fontSize: 20, fontWeight: 700, color: "#f1f5f9" }}>Pipeline Overview</div>
+                </div>
+                <PipelineTab canEdit={canEdit} />
               </div>
             )}
 
