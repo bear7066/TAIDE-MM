@@ -80,40 +80,6 @@ export default function PipelineTab({ canEdit }: Props) {
         onChange={handleFileChange}
       />
 
-      {/* Flow indicator */}
-      <div style={{ display: "flex", alignItems: "center", gap: 0, marginBottom: 36 }}>
-        {CATEGORIES.map((cat, i) => (
-          <div key={cat.id} style={{ display: "flex", alignItems: "center", flex: 1 }}>
-            <div style={{
-              flex: 1,
-              padding: "10px 18px",
-              background: `linear-gradient(135deg, ${cat.color}18, ${cat.color}08)`,
-              border: `1px solid ${cat.color}30`,
-              borderRadius: 10,
-              textAlign: "center",
-            }}>
-              <div style={{ fontSize: 11, fontFamily: "'Space Mono',monospace", color: cat.color, letterSpacing: "0.08em", fontWeight: 600 }}>
-                STEP {i + 1}
-              </div>
-              <div style={{ fontSize: 14, fontWeight: 700, color: "#f1f5f9", marginTop: 2 }}>
-                {cat.label}
-              </div>
-              <div style={{ fontSize: 10, color: "#475569", fontFamily: "'Space Mono',monospace", marginTop: 2 }}>
-                {images.filter(x => x.category === cat.id).length} 張圖
-              </div>
-            </div>
-            {i < CATEGORIES.length - 1 && (
-              <div style={{ width: 32, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <svg width="20" height="10" viewBox="0 0 20 10">
-                  <polyline points="0,5 14,5" stroke="#334155" strokeWidth="1.5" fill="none" />
-                  <polyline points="10,1 18,5 10,9" stroke="#334155" strokeWidth="1.5" fill="none" />
-                </svg>
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-
       {/* Sections */}
       <div style={{ display: "flex", flexDirection: "column", gap: 40 }}>
         {CATEGORIES.map(cat => {
