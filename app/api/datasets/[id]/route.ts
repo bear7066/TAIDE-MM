@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { datasets } from "@/lib/schema";
 import { requireEditor } from "@/lib/auth";
+import { normalizeAssignees } from "@/lib/assignees";
 import { eq, sql } from "drizzle-orm";
 
 // PATCH /api/datasets/:id - 更新
@@ -19,11 +20,12 @@ export async function PATCH(
     const updates: any = {};
     const fields = [
       "name", "modality", "status", "source", "samples", "baseModel",
-      "description", "url", "updatedAt", "tags",
+      "description", "url", "updatedAt", "tags", "assignees",
     ];
     for (const f of fields) {
       if (f in body) updates[f] = body[f];
     }
+    if ("assignees" in body) updates.assignees = normalizeAssignees(body.assignees, session);
 
     const oldId = params.id;
     const newId = typeof body.id === "string" ? body.id.trim() : "";

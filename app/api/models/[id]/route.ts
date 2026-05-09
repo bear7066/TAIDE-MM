@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { models } from "@/lib/schema";
 import { requireEditor } from "@/lib/auth";
+import { normalizeAssignees } from "@/lib/assignees";
 import { eq, sql } from "drizzle-orm";
 
 export async function PATCH(
@@ -20,9 +21,10 @@ export async function PATCH(
       "name", "status", "modality", "baseModel", "params", "precision",
       "stage", "finalLoss", "steps", "trainData", "hardware",
       "description", "url", "downloads", "lossHistory", "lossSteps",
-      "updatedAt", "tags",
+      "updatedAt", "tags", "assignees",
     ];
     for (const f of fields) if (f in body) updates[f] = body[f];
+    if ("assignees" in body) updates.assignees = normalizeAssignees(body.assignees, session);
 
     const oldId = params.id;
     const newId = typeof body.id === "string" ? body.id.trim() : "";

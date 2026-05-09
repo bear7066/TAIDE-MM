@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Chip, ModalityChip, StatusChip, SourceChip, Tag, Metric, LossSparkline } from "./Chips";
+import { AssigneeChips } from "./AssigneeInput";
 import { PRIORITY_META } from "@/lib/tokens";
 import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
 
@@ -33,8 +34,46 @@ const EditButtons = ({ canEdit, onEdit, onDelete }: any) => {
   );
 };
 
-export const DatasetCard = ({ d, canEdit, onEdit, onDelete }: {
-  d: Dataset; canEdit: boolean; onEdit: () => void; onDelete: () => void;
+const AssignControl = ({ canEdit, assignees = [], users = [], onAssign }: {
+  canEdit: boolean;
+  assignees?: string[];
+  users?: string[];
+  onAssign?: (assignees: string[]) => void;
+}) => {
+  if (!canEdit || users.length === 0 || !onAssign) return null;
+  return (
+    <select
+      value=""
+      title="Assign GitHub user"
+      onClick={(e) => e.stopPropagation()}
+      onChange={(e) => {
+        e.stopPropagation();
+        const user = e.target.value;
+        if (!user) return;
+        const current = new Set(assignees.map(a => a.toLowerCase()));
+        current.has(user) ? current.delete(user) : current.add(user);
+        onAssign(Array.from(current));
+        e.currentTarget.value = "";
+      }}
+      style={{
+        height: 22, borderRadius: 5, fontSize: 9,
+        fontFamily: "'Space Mono',monospace", cursor: "pointer",
+        color: "#34d399", background: "rgba(52,211,153,0.06)",
+        border: "1px solid rgba(52,211,153,0.2)",
+      }}
+    >
+      <option value="">ASSIGN</option>
+      {users.map(user => (
+        <option key={user} value={user}>
+          {(assignees || []).includes(user) ? "✓ " : ""}@{user}
+        </option>
+      ))}
+    </select>
+  );
+};
+
+export const DatasetCard = ({ d, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
+  d: Dataset; canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   const isPlanned = d.status === "計劃中";
@@ -59,6 +98,7 @@ export const DatasetCard = ({ d, canEdit, onEdit, onDelete }: {
           <ModalityChip m={d.modality} />
           <StatusChip s={d.status} />
           <SourceChip src={d.source || "—"} />
+          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(d as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
@@ -88,6 +128,7 @@ export const DatasetCard = ({ d, canEdit, onEdit, onDelete }: {
           {d.tags.map(t => <Tag key={t} label={t} />)}
         </div>
       )}
+      <AssigneeChips assignees={(d as any).assignees || []} />
 
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace" }}>Updated {d.updatedAt}</span>
@@ -97,8 +138,8 @@ export const DatasetCard = ({ d, canEdit, onEdit, onDelete }: {
   );
 };
 
-export const ModelCard = ({ m, canEdit, onEdit, onDelete }: {
-  m: Model; canEdit: boolean; onEdit: () => void; onDelete: () => void;
+export const ModelCard = ({ m, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
+  m: Model; canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   return (
@@ -120,6 +161,7 @@ export const ModelCard = ({ m, canEdit, onEdit, onDelete }: {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <ModalityChip m={m.modality} />
           <StatusChip s={m.status} />
+          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(m as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center" }}>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
@@ -161,6 +203,7 @@ export const ModelCard = ({ m, canEdit, onEdit, onDelete }: {
           {m.tags.map(t => <Tag key={t} label={t} />)}
         </div>
       )}
+      <AssigneeChips assignees={(m as any).assignees || []} />
 
       <div style={{ marginTop: 14, paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace" }}>Updated {m.updatedAt}</span>
@@ -214,9 +257,9 @@ const LinkedRefs = ({ datasets, models, tasks, dsIds, mIds, tIds }: {
   );
 };
 
-export const EvalCard = ({ e, datasets, models, canEdit, onEdit, onDelete }: {
+export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
   e: Eval; datasets: Dataset[]; models: Model[];
-  canEdit: boolean; onEdit: () => void; onDelete: () => void;
+  canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   return (
@@ -238,6 +281,7 @@ export const EvalCard = ({ e, datasets, models, canEdit, onEdit, onDelete }: {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <StatusChip s={e.status} />
           <Chip label="EVAL" color="#34d399" bg="rgba(52,211,153,0.10)" border="rgba(52,211,153,0.3)" />
+          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(e as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
@@ -273,6 +317,7 @@ export const EvalCard = ({ e, datasets, models, canEdit, onEdit, onDelete }: {
           {e.tags.map(t => <Tag key={t} label={t} />)}
         </div>
       )}
+      <AssigneeChips assignees={(e as any).assignees || []} />
 
       <LinkedRefs datasets={datasets} models={models} dsIds={e.linkedDatasets} mIds={e.linkedModels} />
 
@@ -284,9 +329,9 @@ export const EvalCard = ({ e, datasets, models, canEdit, onEdit, onDelete }: {
   );
 };
 
-export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, onEdit, onDelete }: {
+export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
   d: Discussion; datasets: Dataset[]; models: Model[]; tasks: Task[];
-  canEdit: boolean; onEdit: () => void; onDelete: () => void;
+  canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   const [expand, setExpand] = useState(false);
@@ -307,6 +352,7 @@ export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, onEdit, on
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <StatusChip s={d.status} />
           <Chip label="💬 DISCUSSION" color="#fbbf24" bg="rgba(251,191,36,0.10)" border="rgba(251,191,36,0.3)" />
+          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(d as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
@@ -342,6 +388,7 @@ export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, onEdit, on
           {d.tags.map(tag => <Tag key={tag} label={tag} />)}
         </div>
       )}
+      <AssigneeChips assignees={(d as any).assignees || []} />
 
       <LinkedRefs
         datasets={datasets} models={models} tasks={tasks}
@@ -351,9 +398,9 @@ export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, onEdit, on
   );
 };
 
-export const TaskCard = ({ t, datasets, models, canEdit, onEdit, onDelete }: {
+export const TaskCard = ({ t, datasets, models, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
   t: Task; datasets: Dataset[]; models: Model[];
-  canEdit: boolean; onEdit: () => void; onDelete: () => void;
+  canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   const pm = PRIORITY_META[t.priority] || PRIORITY_META.medium;
@@ -376,6 +423,7 @@ export const TaskCard = ({ t, datasets, models, canEdit, onEdit, onDelete }: {
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <StatusChip s={t.status} />
           <Chip label={pm.label + " Priority"} color={pm.color} bg={pm.bg} border={pm.border} />
+          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(t as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
@@ -391,6 +439,7 @@ export const TaskCard = ({ t, datasets, models, canEdit, onEdit, onDelete }: {
           {t.tags.map(tag => <Tag key={tag} label={tag} />)}
         </div>
       )}
+      <AssigneeChips assignees={(t as any).assignees || []} />
 
       {(linkedDS.length > 0 || linkedM.length > 0) && (
         <div style={{ paddingTop: 12, borderTop: "1px solid rgba(255,255,255,0.05)" }}>

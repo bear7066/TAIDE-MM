@@ -27,6 +27,7 @@ export default function Dashboard() {
   const [evals, setEvals] = useState<Eval[]>([]);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
+  const [assigneeUsers, setAssigneeUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
 
   const [dsFilter, setDsFilter] = useState("all");
@@ -48,13 +49,14 @@ export default function Dashboard() {
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
 
   const reload = async () => {
-    const [d, m, t, e, dc, tg] = await Promise.all([
+    const [d, m, t, e, dc, tg, au] = await Promise.all([
       fetch("/api/datasets").then(r => r.json()),
       fetch("/api/models").then(r => r.json()),
       fetch("/api/tasks").then(r => r.json()),
       fetch("/api/evals").then(r => r.json()),
       fetch("/api/discussions").then(r => r.json()),
       fetch("/api/tags").then(r => r.json()),
+      fetch("/api/assignees").then(r => r.json()),
     ]);
     setDatasets(d);
     setModels(m);
@@ -62,6 +64,7 @@ export default function Dashboard() {
     setEvals(e);
     setDiscussions(dc);
     setTagSuggestions((tg || []).map((x: any) => x.name));
+    setAssigneeUsers(au || []);
     setLoading(false);
   };
 
@@ -72,6 +75,16 @@ export default function Dashboard() {
     const res = await fetch(`/api/${kind}/${id}`, { method: "DELETE" });
     if (res.ok) reload();
     else alert("刪除失敗");
+  };
+
+  const handleAssign = async (kind: string, id: string, assignees: string[]) => {
+    const res = await fetch(`/api/${kind}/${id}`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ assignees }),
+    });
+    if (res.ok) reload();
+    else alert("指派失敗");
   };
 
   const filteredDS = datasets.filter(d => {
@@ -202,6 +215,8 @@ export default function Dashboard() {
                     <DatasetCard
                       key={d.id} d={d}
                       canEdit={canEdit}
+                      assigneeUsers={assigneeUsers}
+                      onAssign={(assignees) => handleAssign("datasets", d.id, assignees)}
                       onEdit={() => { setEditingDataset(d); setShowDatasetForm(true); }}
                       onDelete={() => handleDelete("datasets", d.id, d.name)}
                     />
@@ -228,6 +243,8 @@ export default function Dashboard() {
                     <ModelCard
                       key={m.id} m={m}
                       canEdit={canEdit}
+                      assigneeUsers={assigneeUsers}
+                      onAssign={(assignees) => handleAssign("models", m.id, assignees)}
                       onEdit={() => { setEditingModel(m); setShowModelForm(true); }}
                       onDelete={() => handleDelete("models", m.id, m.name)}
                     />
@@ -319,6 +336,8 @@ export default function Dashboard() {
                               <TaskCard
                                 key={t.id} t={t} datasets={datasets} models={models}
                                 canEdit={canEdit}
+                                assigneeUsers={assigneeUsers}
+                                onAssign={(assignees) => handleAssign("tasks", t.id, assignees)}
                                 onEdit={() => { setEditingTask(t); setShowTaskForm(true); }}
                                 onDelete={() => handleDelete("tasks", t.id, t.name)}
                               />
@@ -334,6 +353,8 @@ export default function Dashboard() {
                       <TaskCard
                         key={t.id} t={t} datasets={datasets} models={models}
                         canEdit={canEdit}
+                        assigneeUsers={assigneeUsers}
+                        onAssign={(assignees) => handleAssign("tasks", t.id, assignees)}
                         onEdit={() => { setEditingTask(t); setShowTaskForm(true); }}
                         onDelete={() => handleDelete("tasks", t.id, t.name)}
                       />
@@ -366,6 +387,8 @@ export default function Dashboard() {
                     <EvalCard
                       key={e.id} e={e} datasets={datasets} models={models}
                       canEdit={canEdit}
+                      assigneeUsers={assigneeUsers}
+                      onAssign={(assignees) => handleAssign("evals", e.id, assignees)}
                       onEdit={() => { setEditingEval(e); setShowEvalForm(true); }}
                       onDelete={() => handleDelete("evals", e.id, e.name)}
                     />
@@ -412,6 +435,8 @@ export default function Dashboard() {
                       key={d.id} d={d}
                       datasets={datasets} models={models} tasks={tasks}
                       canEdit={canEdit}
+                      assigneeUsers={assigneeUsers}
+                      onAssign={(assignees) => handleAssign("discussions", d.id, assignees)}
                       onEdit={() => { setEditingDiscussion(d); setShowDiscussionForm(true); }}
                       onDelete={() => handleDelete("discussions", d.id, d.title)}
                     />
@@ -432,6 +457,7 @@ export default function Dashboard() {
         onClose={() => setShowDatasetForm(false)}
         initial={editingDataset}
         suggestions={tagSuggestions}
+        assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
       <ModelForm
@@ -439,6 +465,7 @@ export default function Dashboard() {
         onClose={() => setShowModelForm(false)}
         initial={editingModel}
         suggestions={tagSuggestions}
+        assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
       <TaskForm
@@ -448,6 +475,7 @@ export default function Dashboard() {
         datasets={datasets}
         models={models}
         suggestions={tagSuggestions}
+        assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
       <EvalForm
@@ -457,6 +485,7 @@ export default function Dashboard() {
         datasets={datasets}
         models={models}
         suggestions={tagSuggestions}
+        assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
       <DiscussionForm
@@ -467,6 +496,7 @@ export default function Dashboard() {
         models={models}
         tasks={tasks}
         suggestions={tagSuggestions}
+        assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
     </div>

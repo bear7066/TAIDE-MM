@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { discussions, globalTags } from "@/lib/schema";
 import { requireEditor } from "@/lib/auth";
+import { normalizeAssignees } from "@/lib/assignees";
 import { sql } from "drizzle-orm";
 
 export async function GET() {
@@ -35,6 +36,7 @@ export async function POST(req: NextRequest) {
         linkedModels: body.linkedModels || [],
         linkedTasks: body.linkedTasks || [],
         tags: body.tags || [],
+        assignees: normalizeAssignees(body.assignees, session),
         updatedAt: body.updatedAt || new Date().toISOString().slice(0, 7),
         createdBy: (session.user as any).githubLogin,
       })

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Modal, { Button, fieldStyle, labelStyle } from "./Modal";
 import TagInput from "./TagInput";
+import AssigneeInput from "./AssigneeInput";
 import type { Eval, Dataset, Model } from "@/lib/schema";
 
 interface Props {
@@ -12,10 +13,11 @@ interface Props {
   datasets: Dataset[];
   models: Model[];
   suggestions: string[];
+  assigneeUsers: string[];
   onSaved: () => void;
 }
 
-export default function EvalForm({ open, onClose, initial, datasets, models, suggestions, onSaved }: Props) {
+export default function EvalForm({ open, onClose, initial, datasets, models, suggestions, assigneeUsers, onSaved }: Props) {
   const isEdit = !!initial;
   const [form, setForm] = useState<any>({});
   const [submitting, setSubmitting] = useState(false);
@@ -31,6 +33,7 @@ export default function EvalForm({ open, onClose, initial, datasets, models, sug
       url: initial.url || "",
       updatedAt: initial.updatedAt || "",
       tags: initial.tags || [],
+      assignees: (initial as any).assignees || [],
     } : {
       id: "", name: "", status: "計劃中", description: "",
       linkedDatasets: [], linkedModels: [],
@@ -38,6 +41,7 @@ export default function EvalForm({ open, onClose, initial, datasets, models, sug
       url: "",
       updatedAt: new Date().toISOString().slice(0, 7),
       tags: [],
+      assignees: [],
     });
     setErr("");
   }, [initial, open]);
@@ -220,6 +224,11 @@ export default function EvalForm({ open, onClose, initial, datasets, models, sug
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <label style={labelStyle}>Assignees</label>
+          <AssigneeInput value={form.assignees || []} onChange={v => set("assignees", v)} users={assigneeUsers} />
         </div>
 
         <div>

@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Modal, { Button, fieldStyle, labelStyle } from "./Modal";
 import TagInput from "./TagInput";
+import AssigneeInput from "./AssigneeInput";
 import type { Model } from "@/lib/schema";
 
 interface Props {
@@ -10,10 +11,11 @@ interface Props {
   onClose: () => void;
   initial?: Model | null;
   suggestions: string[];
+  assigneeUsers: string[];
   onSaved: () => void;
 }
 
-export default function ModelForm({ open, onClose, initial, suggestions, onSaved }: Props) {
+export default function ModelForm({ open, onClose, initial, suggestions, assigneeUsers, onSaved }: Props) {
   const isEdit = !!initial;
   const [form, setForm] = useState<any>({});
   const [submitting, setSubmitting] = useState(false);
@@ -31,6 +33,7 @@ export default function ModelForm({ open, onClose, initial, suggestions, onSaved
       hardware: initial.hardware || "—", description: initial.description,
       url: initial.url || "", downloads: initial.downloads || "0",
       updatedAt: initial.updatedAt || "", tags: initial.tags || [],
+      assignees: (initial as any).assignees || [],
       lossHistory: initial.lossHistory || [],
       lossSteps: initial.lossSteps || [],
     } : {
@@ -39,6 +42,7 @@ export default function ModelForm({ open, onClose, initial, suggestions, onSaved
       stage: "—", finalLoss: "—", steps: "—", trainData: "—",
       hardware: "—", description: "", url: "", downloads: "0",
       updatedAt: new Date().toISOString().slice(0, 7), tags: [],
+      assignees: [],
       lossHistory: [], lossSteps: [],
     };
     setForm(base);
@@ -198,6 +202,11 @@ export default function ModelForm({ open, onClose, initial, suggestions, onSaved
             <label style={labelStyle}>Loss Steps (逗號分隔)</label>
             <input style={fieldStyle} value={stepsText} onChange={e => setStepsText(e.target.value)} placeholder="10,50,100,200,300" />
           </div>
+        </div>
+
+        <div>
+          <label style={labelStyle}>Assignees</label>
+          <AssigneeInput value={form.assignees || []} onChange={v => set("assignees", v)} users={assigneeUsers} />
         </div>
 
         <div>

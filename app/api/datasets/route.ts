@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { datasets, globalTags } from "@/lib/schema";
 import { requireEditor } from "@/lib/auth";
+import { normalizeAssignees } from "@/lib/assignees";
 import { sql } from "drizzle-orm";
 
 // GET /api/datasets - 列出所有 datasets (公開)
@@ -42,6 +43,7 @@ export async function POST(req: NextRequest) {
         url: body.url || null,
         updatedAt: body.updatedAt || new Date().toISOString().slice(0, 7),
         tags: body.tags || [],
+        assignees: normalizeAssignees(body.assignees, session),
         createdBy: (session.user as any).githubLogin,
       })
       .returning();

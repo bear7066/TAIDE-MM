@@ -29,6 +29,7 @@ export const datasets = pgTable("datasets", {
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   // 內建 tag (string array)
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   // 編輯者紀錄
   createdBy: varchar("created_by", { length: 64 }),
@@ -56,6 +57,7 @@ export const models = pgTable("models", {
   lossSteps: jsonb("loss_steps").$type<number[]>().notNull().default([]),
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: varchar("created_by", { length: 64 }),
 });
@@ -72,6 +74,7 @@ export const tasks = pgTable("tasks", {
   priority: priorityEnum("priority").notNull().default("medium"),
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: varchar("created_by", { length: 64 }),
 });
@@ -90,6 +93,7 @@ export const evals = pgTable("evals", {
   url: text("url"),
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: varchar("created_by", { length: 64 }),
 });
@@ -105,6 +109,7 @@ export const discussions = pgTable("discussions", {
   linkedModels: jsonb("linked_models").$type<string[]>().notNull().default([]),
   linkedTasks: jsonb("linked_tasks").$type<string[]>().notNull().default([]),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
+  assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: varchar("created_by", { length: 64 }),

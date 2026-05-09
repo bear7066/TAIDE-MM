@@ -1,7 +1,7 @@
 import NextAuth from "next-auth";
 import GitHub from "next-auth/providers/github";
 
-const allowedUsers = (process.env.ALLOWED_GITHUB_USERS || "")
+export const allowedUsers = (process.env.ALLOWED_GITHUB_USERS || "")
   .split(",")
   .map((u) => u.trim().toLowerCase())
   .filter(Boolean);

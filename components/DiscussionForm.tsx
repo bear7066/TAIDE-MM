@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Modal, { Button, fieldStyle, labelStyle } from "./Modal";
 import TagInput from "./TagInput";
+import AssigneeInput from "./AssigneeInput";
 import type { Discussion, Dataset, Model, Task } from "@/lib/schema";
 
 interface Props {
@@ -13,10 +14,11 @@ interface Props {
   models: Model[];
   tasks: Task[];
   suggestions: string[];
+  assigneeUsers: string[];
   onSaved: () => void;
 }
 
-export default function DiscussionForm({ open, onClose, initial, datasets, models, tasks, suggestions, onSaved }: Props) {
+export default function DiscussionForm({ open, onClose, initial, datasets, models, tasks, suggestions, assigneeUsers, onSaved }: Props) {
   const isEdit = !!initial;
   const [form, setForm] = useState<any>({});
   const [submitting, setSubmitting] = useState(false);
@@ -31,12 +33,14 @@ export default function DiscussionForm({ open, onClose, initial, datasets, model
       linkedTasks: initial.linkedTasks || [],
       updatedAt: initial.updatedAt || "",
       tags: initial.tags || [],
+      assignees: (initial as any).assignees || [],
     } : {
       id: "", title: "", body: "",
       status: "進行中",
       linkedDatasets: [], linkedModels: [], linkedTasks: [],
       updatedAt: new Date().toISOString().slice(0, 7),
       tags: [],
+      assignees: [],
     });
     setErr("");
   }, [initial, open]);
@@ -189,6 +193,11 @@ export default function DiscussionForm({ open, onClose, initial, datasets, model
               );
             })}
           </div>
+        </div>
+
+        <div>
+          <label style={labelStyle}>Assignees</label>
+          <AssigneeInput value={form.assignees || []} onChange={v => set("assignees", v)} users={assigneeUsers} />
         </div>
 
         <div>

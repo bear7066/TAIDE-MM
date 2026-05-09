@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Modal, { Button, fieldStyle, labelStyle } from "./Modal";
 import TagInput from "./TagInput";
+import AssigneeInput from "./AssigneeInput";
 import type { Dataset } from "@/lib/schema";
 
 interface Props {
@@ -10,15 +11,16 @@ interface Props {
   onClose: () => void;
   initial?: Dataset | null;
   suggestions: string[];
+  assigneeUsers: string[];
   onSaved: () => void;
 }
 
-export default function DatasetForm({ open, onClose, initial, suggestions, onSaved }: Props) {
+export default function DatasetForm({ open, onClose, initial, suggestions, assigneeUsers, onSaved }: Props) {
   const isEdit = !!initial;
   const [form, setForm] = useState<any>({
     id: "", name: "", modality: "video", status: "計劃中",
     source: "—", samples: "—", baseModel: "—",
-    description: "", url: "", updatedAt: "", tags: [] as string[],
+    description: "", url: "", updatedAt: "", tags: [] as string[], assignees: [] as string[],
   });
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState("");
@@ -33,6 +35,7 @@ export default function DatasetForm({ open, onClose, initial, suggestions, onSav
         description: initial.description, url: initial.url || "",
         updatedAt: initial.updatedAt || "",
         tags: initial.tags || [],
+        assignees: (initial as any).assignees || [],
       });
     } else {
       setForm({
@@ -41,6 +44,7 @@ export default function DatasetForm({ open, onClose, initial, suggestions, onSav
         description: "", url: "",
         updatedAt: new Date().toISOString().slice(0, 7),
         tags: [],
+        assignees: [],
       });
     }
     setErr("");
@@ -164,6 +168,15 @@ export default function DatasetForm({ open, onClose, initial, suggestions, onSav
         <div>
           <label style={labelStyle}>HuggingFace URL</label>
           <input style={fieldStyle} value={form.url} onChange={e => set("url", e.target.value)} placeholder="https://huggingface.co/datasets/..." />
+        </div>
+
+        <div>
+          <label style={labelStyle}>Assignees</label>
+          <AssigneeInput
+            value={form.assignees || []}
+            onChange={v => set("assignees", v)}
+            users={assigneeUsers}
+          />
         </div>
 
         <div>
