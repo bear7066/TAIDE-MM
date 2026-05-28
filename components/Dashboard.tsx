@@ -9,6 +9,7 @@ import ModelForm from "./ModelForm";
 import TaskForm from "./TaskForm";
 import EvalForm from "./EvalForm";
 import DiscussionForm from "./DiscussionForm";
+import DiscussionThreadModal from "./DiscussionThreadModal";
 import PipelineTab from "./PipelineTab";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
@@ -47,6 +48,7 @@ export default function Dashboard() {
   const [showEvalForm, setShowEvalForm] = useState(false);
   const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null);
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
+  const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
 
   const reload = async () => {
     const [d, m, t, e, dc, tg, au] = await Promise.all([
@@ -95,6 +97,7 @@ export default function Dashboard() {
   const filteredTasks = tasks.filter(t => taskFilter === "all" || t.status === taskFilter);
   const filteredEvals = evals.filter(e => evalFilter === "all" || e.status === evalFilter);
   const filteredDiscussions = discussions.filter(d => discFilter === "all" || d.status === discFilter);
+  const openDiscussion = discussions.find(d => d.id === openDiscussionId) || null;
 
   const totalSamples = datasets.reduce((sum, d) => {
     const n = parseInt((d.samples || "").replace(/[^0-9]/g, ""));
@@ -437,6 +440,7 @@ export default function Dashboard() {
                       canEdit={canEdit}
                       assigneeUsers={assigneeUsers}
                       onAssign={(assignees) => handleAssign("discussions", d.id, assignees)}
+                      onOpen={() => setOpenDiscussionId(d.id)}
                       onEdit={() => { setEditingDiscussion(d); setShowDiscussionForm(true); }}
                       onDelete={() => handleDelete("discussions", d.id, d.title)}
                     />
@@ -497,6 +501,13 @@ export default function Dashboard() {
         tasks={tasks}
         suggestions={tagSuggestions}
         assigneeUsers={assigneeUsers}
+        onSaved={reload}
+      />
+      <DiscussionThreadModal
+        open={!!openDiscussion}
+        discussion={openDiscussion}
+        canEdit={canEdit}
+        onClose={() => setOpenDiscussionId(null)}
         onSaved={reload}
       />
     </div>

@@ -196,8 +196,13 @@ export default function DiscussionForm({ open, onClose, initial, datasets, model
         </div>
 
         <div>
-          <label style={labelStyle}>Assignees</label>
-          <AssigneeInput value={form.assignees || []} onChange={v => set("assignees", v)} users={assigneeUsers} />
+          <label style={labelStyle}>Mentions</label>
+          <AssigneeInput
+            value={form.assignees || []}
+            onChange={v => set("assignees", v)}
+            users={assigneeUsers}
+            emptyText="尚無可 mention GitHub 使用者"
+          />
         </div>
 
         <div>

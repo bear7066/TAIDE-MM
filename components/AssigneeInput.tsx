@@ -4,9 +4,10 @@ type Props = {
   value: string[];
   onChange: (assignees: string[]) => void;
   users: string[];
+  emptyText?: string;
 };
 
-export default function AssigneeInput({ value = [], onChange, users = [] }: Props) {
+export default function AssigneeInput({ value = [], onChange, users = [], emptyText = "尚無可指派 GitHub 使用者" }: Props) {
   const selected = new Set((value || []).map(u => u.toLowerCase()));
 
   const toggle = (user: string) => {
@@ -22,7 +23,7 @@ export default function AssigneeInput({ value = [], onChange, users = [] }: Prop
     <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
       {users.length === 0 && (
         <span style={{ fontSize: 11, color: "#475569", fontFamily: "'Space Mono',monospace" }}>
-          尚無可指派 GitHub 使用者
+          {emptyText}
         </span>
       )}
       {users.map(user => {
@@ -69,4 +70,3 @@ export function AssigneeChips({ assignees = [] }: { assignees?: string[] }) {
     </div>
   );
 }
-

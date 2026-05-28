@@ -34,17 +34,19 @@ const EditButtons = ({ canEdit, onEdit, onDelete }: any) => {
   );
 };
 
-const AssignControl = ({ canEdit, assignees = [], users = [], onAssign }: {
+const AssignControl = ({ canEdit, assignees = [], users = [], onAssign, label, title }: {
   canEdit: boolean;
   assignees?: string[];
   users?: string[];
   onAssign?: (assignees: string[]) => void;
+  label?: string;
+  title?: string;
 }) => {
   if (!canEdit || users.length === 0 || !onAssign) return null;
   return (
     <select
       value=""
-      title="Assign GitHub user"
+      title={title || "Assign GitHub user"}
       onClick={(e) => e.stopPropagation()}
       onChange={(e) => {
         e.stopPropagation();
@@ -62,7 +64,7 @@ const AssignControl = ({ canEdit, assignees = [], users = [], onAssign }: {
         border: "1px solid rgba(52,211,153,0.2)",
       }}
     >
-      <option value="">ASSIGN</option>
+      <option value="">{label || "ASSIGN"}</option>
       {users.map(user => (
         <option key={user} value={user}>
           {(assignees || []).includes(user) ? "✓ " : ""}@{user}
@@ -232,7 +234,10 @@ const LinkedRefs = ({ datasets, models, tasks, dsIds, mIds, tIds }: {
             fontFamily: "'Space Mono',monospace",
             color: "#60a5fa", background: "rgba(96,165,250,0.08)",
             border: "1px solid rgba(96,165,250,0.2)", cursor: d.url ? "pointer" : "default",
-          }} onClick={() => d.url && window.open(d.url, "_blank")}>▶ {d.name}</span>
+          }} onClick={(e) => {
+            e.stopPropagation();
+            d.url && window.open(d.url, "_blank");
+          }}>▶ {d.name}</span>
         ))}
         {ms.map(m => (
           <span key={m.id} style={{
@@ -241,7 +246,10 @@ const LinkedRefs = ({ datasets, models, tasks, dsIds, mIds, tIds }: {
             fontFamily: "'Space Mono',monospace",
             color: "#a78bfa", background: "rgba(167,139,250,0.08)",
             border: "1px solid rgba(167,139,250,0.2)", cursor: m.url ? "pointer" : "default",
-          }} onClick={() => m.url && window.open(m.url, "_blank")}>🧠 {m.name}</span>
+          }} onClick={(e) => {
+            e.stopPropagation();
+            m.url && window.open(m.url, "_blank");
+          }}>🧠 {m.name}</span>
         ))}
         {ts.map(t => (
           <span key={t.id} style={{
@@ -329,32 +337,57 @@ export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onA
   );
 };
 
-export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
+export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, assigneeUsers = [], onAssign, onOpen, onEdit, onDelete }: {
   d: Discussion; datasets: Dataset[]; models: Model[]; tasks: Task[];
-  canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
+  canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onOpen: () => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
   const [expand, setExpand] = useState(false);
   const isLong = (d.body || "").length > 200;
   const bodyToShow = expand || !isLong ? d.body : (d.body || "").slice(0, 200) + "…";
+  const commentCount = ((d as any).comments || []).length;
   return (
     <div
+      onClick={onOpen}
       onMouseEnter={() => setHov(true)}
       onMouseLeave={() => setHov(false)}
       style={{
         background: hov ? "#161c2a" : "#111620",
         border: `1px solid ${hov ? "rgba(251,191,36,0.22)" : "rgba(255,255,255,0.06)"}`,
         borderRadius: 14, padding: "20px",
+        cursor: "pointer",
         transition: "all 0.25s ease",
+        transform: hov ? "translateY(-1px)" : "none",
       }}
     >
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <StatusChip s={d.status} />
           <Chip label="💬 DISCUSSION" color="#fbbf24" bg="rgba(251,191,36,0.10)" border="rgba(251,191,36,0.3)" />
-          <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(d as any).assignees || []} onAssign={onAssign} />
+          <Chip label={`${commentCount} COMMENTS`} color="#38bdf8" bg="rgba(56,189,248,0.08)" border="rgba(56,189,248,0.22)" />
+          <AssignControl
+            canEdit={canEdit}
+            users={assigneeUsers}
+            assignees={(d as any).assignees || []}
+            onAssign={onAssign}
+            label="MENTION"
+            title="Mention GitHub user"
+          />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+            style={{
+              padding: "3px 9px", borderRadius: 5, fontSize: 9,
+              fontFamily: "'Space Mono',monospace", cursor: "pointer",
+              color: "#fbbf24", background: "rgba(251,191,36,0.07)",
+              border: "1px solid rgba(251,191,36,0.22)",
+            }}
+          >OPEN</button>
           <EditButtons canEdit={canEdit} onEdit={onEdit} onDelete={onDelete} />
           <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace" }}>{d.updatedAt}</span>
         </div>
@@ -372,7 +405,10 @@ export const DiscussionCard = ({ d, datasets, models, tasks, canEdit, assigneeUs
           {isLong && (
             <button
               type="button"
-              onClick={() => setExpand(!expand)}
+              onClick={(e) => {
+                e.stopPropagation();
+                setExpand(!expand);
+              }}
               style={{
                 marginLeft: 6, fontSize: 10, color: "#fbbf24",
                 background: "none", border: "none", cursor: "pointer",

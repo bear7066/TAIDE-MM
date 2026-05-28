@@ -110,6 +110,7 @@ export const discussions = pgTable("discussions", {
   linkedTasks: jsonb("linked_tasks").$type<string[]>().notNull().default([]),
   tags: jsonb("tags").$type<string[]>().notNull().default([]),
   assignees: jsonb("assignees").$type<string[]>().notNull().default([]),
+  comments: jsonb("comments").$type<DiscussionComment[]>().notNull().default([]),
   updatedAt: varchar("updated_at", { length: 16 }).default("—"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   createdBy: varchar("created_by", { length: 64 }),
@@ -147,6 +148,12 @@ export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Eval = typeof evals.$inferSelect;
 export type NewEval = typeof evals.$inferInsert;
+export type DiscussionComment = {
+  id: string;
+  author: string;
+  body: string;
+  createdAt: string;
+};
 export type Discussion = typeof discussions.$inferSelect;
 export type NewDiscussion = typeof discussions.$inferInsert;
 export type GlobalTag = typeof globalTags.$inferSelect;
