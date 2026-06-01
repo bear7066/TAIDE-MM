@@ -66,3 +66,250 @@ input, textarea, select, button {
 input:focus, textarea:focus, select:focus {
   border-color: rgba(96,165,250,0.4) !important;
 }
+
+/* ── MDX Editor dark theme ── */
+.notes-editor-wrap .mdxeditor {
+  background: #111620;
+  color: #f1f5f9;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  --accentBase: #1e3a5f;
+  --accentBgSubtle: #0e1e35;
+  --accentBg: rgba(96,165,250,0.10);
+  --accentBgHover: rgba(96,165,250,0.18);
+  --accentBgActive: rgba(96,165,250,0.25);
+  --accentLine: rgba(96,165,250,0.30);
+  --accentBorder: rgba(96,165,250,0.35);
+  --accentBorderHover: rgba(96,165,250,0.55);
+  --accentSolid: #60a5fa;
+  --accentSolidHover: #93c5fd;
+  --accentText: #60a5fa;
+  --accentTextContrast: #f1f5f9;
+}
+
+.notes-editor-wrap [class*="_toolbarRoot_"] {
+  background: #0e1117;
+  border-bottom: 1px solid rgba(96,165,250,0.10);
+  padding: 6px 10px;
+  flex-shrink: 0;
+}
+
+.notes-editor-wrap [class*="_toolbarButton_"],
+.notes-editor-wrap [class*="_toolbarToggleItem_"],
+.notes-editor-wrap [class*="_selectTrigger_"] {
+  color: #94a3b8;
+  border-radius: 6px;
+  background: transparent !important;
+  border-color: rgba(255,255,255,0.08) !important;
+}
+
+/* Force all SVG icons in the toolbar to use readable color */
+.notes-editor-wrap .mdxeditor-toolbar svg {
+  color: #94a3b8 !important;
+}
+
+.notes-editor-wrap [class*="_toolbarButton_"]:hover,
+.notes-editor-wrap [class*="_toolbarToggleItem_"]:hover,
+.notes-editor-wrap [class*="_selectTrigger_"]:hover {
+  background: rgba(96,165,250,0.10);
+  color: #60a5fa;
+}
+.notes-editor-wrap [class*="_toolbarButton_"]:hover svg,
+.notes-editor-wrap [class*="_toolbarToggleItem_"]:hover svg,
+.notes-editor-wrap [class*="_selectTrigger_"]:hover svg {
+  color: #60a5fa !important;
+}
+
+.notes-editor-wrap [class*="_toolbarToggleItem_"][data-state="on"] {
+  background: rgba(96,165,250,0.15);
+  color: #60a5fa;
+}
+.notes-editor-wrap [class*="_toolbarToggleItem_"][data-state="on"] svg {
+  color: #60a5fa !important;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"]:not([class*="_placeholder_"]),
+.notes-editor-wrap .notes-editor-content:not([class*="_placeholder_"]) {
+  background: #111620;
+  color: #dde3ea;
+  caret-color: #f1f5f9;
+  padding: 20px 24px;
+  flex: 1;
+  overflow-y: auto;
+  font-family: 'Space Grotesk', 'Noto Sans TC', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  min-height: 0;
+}
+
+.notes-editor-wrap [class*="_placeholder_"] {
+  background: transparent !important;
+  color: #475569;
+  padding: 20px 24px;
+  pointer-events: none;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] h1,
+.notes-editor-wrap [class*="_contentEditable_"] h2,
+.notes-editor-wrap [class*="_contentEditable_"] h3 {
+  color: #f1f5f9;
+  border-bottom: 1px solid rgba(255,255,255,0.06);
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+  margin-top: 20px;
+}
+
+/* Restore list indentation (global * { padding: 0 } reset strips it) */
+.notes-editor-wrap [class*="_contentEditable_"] ul,
+.notes-editor-wrap [class*="_contentEditable_"] ol {
+  padding-left: 24px;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] a { color: #60a5fa; }
+.notes-editor-wrap [class*="_contentEditable_"] code {
+  background: #0e1117;
+  color: #a78bfa;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Space Mono', monospace;
+  font-size: 12px;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] pre {
+  background: #0e1117;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 14px 16px;
+  overflow-x: auto;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] blockquote {
+  border-left: 3px solid rgba(96,165,250,0.40);
+  padding-left: 16px;
+  color: #94a3b8;
+  margin: 12px 0;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] th,
+.notes-editor-wrap [class*="_contentEditable_"] td {
+  border: 1px solid rgba(255,255,255,0.08);
+  padding: 6px 12px;
+}
+
+.notes-editor-wrap [class*="_contentEditable_"] th {
+  background: rgba(96,165,250,0.08);
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+.notes-editor-wrap [class*="_editorRoot_"] {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.notes-editor-wrap [class*="_rootContentEditableWrapper_"] {
+  flex: 1;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.notes-editor-wrap [contenteditable="true"] {
+  caret-color: #f1f5f9;
+  color: #dde3ea;
+}
+
+/* diff source toggle group + codeMirror toolbar */
+.notes-editor-wrap [class*="_diffSourceToggle_"],
+.notes-editor-wrap [class*="_codeMirrorToolbar_"] {
+  background: #0e1117 !important;
+  border-color: rgba(255,255,255,0.06) !important;
+}
+
+/* ── CodeMirror (source + diff mode) dark theme ── */
+.notes-editor-wrap .cm-editor {
+  background: #111620;
+  color: #94a3b8;
+  height: 100%;
+}
+
+.notes-editor-wrap .cm-content {
+  caret-color: #f1f5f9;
+  color: #b8c0cc;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+  line-height: 1.7;
+  padding: 16px 0;
+}
+
+.notes-editor-wrap .cm-gutters {
+  background: #0e1117;
+  border-right: 1px solid rgba(255,255,255,0.06);
+  color: #334155;
+}
+
+.notes-editor-wrap .cm-activeLineGutter {
+  background: rgba(96,165,250,0.06);
+  color: #475569;
+}
+
+.notes-editor-wrap .cm-activeLine {
+  background: rgba(96,165,250,0.05);
+}
+
+.notes-editor-wrap .cm-selectionBackground,
+.notes-editor-wrap .cm-editor.cm-focused .cm-selectionBackground {
+  background: rgba(96,165,250,0.20) !important;
+}
+
+.notes-editor-wrap .cm-cursor,
+.notes-editor-wrap .cm-dropCursor {
+  border-left-color: #f1f5f9 !important;
+}
+
+.notes-editor-wrap .cm-panels {
+  background: #0e1117;
+  color: #94a3b8;
+  border-color: rgba(255,255,255,0.06);
+}
+
+/* diff mode: added/deleted lines */
+.notes-editor-wrap .cm-changedLine,
+.notes-editor-wrap .cm-insertedLine {
+  background: rgba(52,211,153,0.08);
+}
+.notes-editor-wrap .cm-deletedLine {
+  background: rgba(248,113,113,0.08);
+}
+.notes-editor-wrap .cm-changedText {
+  background: rgba(52,211,153,0.15);
+}
+.notes-editor-wrap .cm-deletedText {
+  background: rgba(248,113,113,0.15);
+}
+
+/* diff source view (legacy textarea fallback) */
+.notes-editor-wrap [class*="_sourceEditor_"] textarea {
+  background: #111620;
+  color: #94a3b8;
+  font-family: 'Space Mono', monospace;
+  font-size: 13px;
+}
+
+/* select/popover dropdowns */
+.notes-editor-wrap [class*="_selectContent_"],
+.notes-editor-wrap [class*="_popupContainer_"] {
+  background: #0e1117;
+  border: 1px solid rgba(96,165,250,0.20);
+  color: #f1f5f9;
+}
+
+.notes-editor-wrap [class*="_selectItem_"]:hover {
+  background: rgba(96,165,250,0.10);
+}

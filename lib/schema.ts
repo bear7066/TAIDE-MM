@@ -139,6 +139,14 @@ export const pipelineImages = pgTable("pipeline_images", {
   createdBy: varchar("created_by", { length: 64 }),
 });
 
+// ─────────────── NOTES ───────────────
+export const notes = pgTable("notes", {
+  id: text("id").primaryKey(),
+  content: text("content").notNull().default(""),
+  updatedAt: timestamp("updated_at").defaultNow().notNull(),
+  updatedBy: text("updated_by"),
+});
+
 // ─────────────── TYPE EXPORTS ───────────────
 export type Dataset = typeof datasets.$inferSelect;
 export type NewDataset = typeof datasets.$inferInsert;
