@@ -11,15 +11,17 @@ import EvalForm from "./EvalForm";
 import DiscussionForm from "./DiscussionForm";
 import DiscussionThreadModal from "./DiscussionThreadModal";
 import PipelineTab from "./PipelineTab";
+import NotesEditor from "./NotesEditor";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
 import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline";
+type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline" | "notes";
 
 export default function Dashboard() {
   const { data: session } = useSession();
   const canEdit = !!(session?.user as any)?.canEdit;
+  // const canEdit = true // debug
 
   const [tab, setTab] = useState<Tab>("datasets");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
@@ -114,6 +116,7 @@ export default function Dashboard() {
     { id: "evals" as Tab, label: "Evals", count: evals.length },
     { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
     { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
+    { id: "notes" as Tab, label: "Notes" },
   ];
 
   return (
@@ -156,12 +159,14 @@ export default function Dashboard() {
               cursor: "pointer", transition: "all 0.18s",
             }}>
               {t.label}
-              <span style={{
-                fontSize: 9, fontFamily: "'Space Mono',monospace",
-                padding: "1px 5px", borderRadius: 4,
-                background: tab === t.id ? "rgba(96,165,250,0.15)" : "rgba(255,255,255,0.05)",
-                color: tab === t.id ? "#60a5fa" : "#475569",
-              }}>{t.count}</span>
+              {(t as any).count !== undefined && (
+                <span style={{
+                  fontSize: 9, fontFamily: "'Space Mono',monospace",
+                  padding: "1px 5px", borderRadius: 4,
+                  background: tab === t.id ? "rgba(96,165,250,0.15)" : "rgba(255,255,255,0.05)",
+                  color: tab === t.id ? "#60a5fa" : "#475569",
+                }}>{(t as any).count}</span>
+              )}
               {(t as any).wip > 0 && (
                 <span style={{ width: 5, height: 5, borderRadius: "50%", background: "#60a5fa", boxShadow: "0 0 5px #60a5fa" }}></span>
               )}
@@ -401,6 +406,11 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
+            )}
+
+            {/* NOTES */}
+            {tab === "notes" && (
+              <NotesEditor canEdit={canEdit} />
             )}
 
             {/* PIPELINE */}
