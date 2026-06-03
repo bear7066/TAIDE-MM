@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 import AuthButton from "./AuthButton";
 import { DatasetCard, ModelCard, TaskCard, EvalCard, DiscussionCard } from "./Cards";
 import DatasetForm from "./DatasetForm";
@@ -11,12 +12,11 @@ import EvalForm from "./EvalForm";
 import DiscussionForm from "./DiscussionForm";
 import DiscussionThreadModal from "./DiscussionThreadModal";
 import PipelineTab from "./PipelineTab";
-import NotesEditor from "./NotesEditor";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
 import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline" | "notes";
+type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -116,7 +116,6 @@ export default function Dashboard() {
     { id: "evals" as Tab, label: "Evals", count: evals.length },
     { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
     { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
-    { id: "notes" as Tab, label: "Notes" },
   ];
 
   return (
@@ -172,6 +171,18 @@ export default function Dashboard() {
               )}
             </button>
           ))}
+          <Link href="/note" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "6px 14px", borderRadius: 8,
+            fontSize: 12, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 400,
+            background: "transparent",
+            border: "1px solid transparent",
+            color: "#475569",
+            cursor: "pointer", transition: "all 0.18s",
+            textDecoration: "none",
+          }}>
+            Notes
+          </Link>
         </div>
 
         {/* right */}
@@ -406,11 +417,6 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-            )}
-
-            {/* NOTES */}
-            {tab === "notes" && (
-              <NotesEditor canEdit={canEdit} />
             )}
 
             {/* PIPELINE */}
