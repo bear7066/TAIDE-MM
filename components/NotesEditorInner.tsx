@@ -96,7 +96,7 @@ export default function NotesEditorInner({ canEdit }: { canEdit: boolean }) {
   const statusLabel = status === "saved" ? "Saved" : status === "saving" ? "Saving…" : "Unsaved";
 
   return (
-    <div style={{ display: "flex", flexDirection: "column", height: "calc(100vh - 160px)" }}>
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       {/* header bar */}
       <div style={{
         display: "flex", alignItems: "center", justifyContent: "space-between",
@@ -134,7 +134,7 @@ export default function NotesEditorInner({ canEdit }: { canEdit: boolean }) {
         flex: 1, minHeight: 0,
         borderRadius: 12,
         border: "1px solid rgba(96,165,250,0.12)",
-        overflow: "hidden",
+        overflow: "auto",
       }}>
         <MDXEditor
           ref={editorRef}

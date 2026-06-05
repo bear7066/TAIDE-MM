@@ -43,7 +43,7 @@ export default function NotePage() {
       </div>
 
       {/* BODY */}
-      <div style={{ flex: 1, overflowY: "auto", padding: "28px 32px" }}>
+      <div style={{ flex: 1, overflow: "hidden", padding: "28px 32px", display: "flex", flexDirection: "column" }}>
         <NotesEditor canEdit={canEdit} />
       </div>
     </div>
