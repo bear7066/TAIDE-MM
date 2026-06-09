@@ -18,8 +18,7 @@ export async function PATCH(
     const body = await req.json();
     const updates: any = {};
     const fields = [
-      "name", "status", "description", "linkedDatasets",
-      "linkedModels", "metrics", "url", "updatedAt", "tags", "assignees",
+      "name", "status", "description", "url", "updatedAt", "tags", "assignees",
     ];
     for (const f of fields) if (f in body) updates[f] = body[f];
     if ("assignees" in body) updates.assignees = normalizeAssignees(body.assignees, session);
@@ -36,7 +35,7 @@ export async function PATCH(
         .limit(1);
       if (collide.length > 0) {
         return NextResponse.json(
-          { error: `ID "${newId}" 已被其他 eval 使用` },
+          { error: `ID "${newId}" 已被其他 benchmark 使用` },
           { status: 409 }
         );
       }

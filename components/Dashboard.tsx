@@ -4,19 +4,19 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import AuthButton from "./AuthButton";
-import { DatasetCard, ModelCard, TaskCard, EvalCard, DiscussionCard } from "./Cards";
+import { DatasetCard, ModelCard, TaskCard, BenchmarkCard, DiscussionCard } from "./Cards";
 import DatasetForm from "./DatasetForm";
 import ModelForm from "./ModelForm";
 import TaskForm from "./TaskForm";
-import EvalForm from "./EvalForm";
+import BenchmarkForm from "./BenchmarkForm";
 import DiscussionForm from "./DiscussionForm";
 import DiscussionThreadModal from "./DiscussionThreadModal";
-import PipelineTab from "./PipelineTab";
+// import PipelineTab from "./PipelineTab";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
-import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
+import type { Benchmark, Dataset, Model, Task, Discussion } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "evals" | "discussions" | "pipeline";
+type Tab = "datasets" | "models" | "tasks" | "benchmarks" | "discussions";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -27,15 +27,16 @@ export default function Dashboard() {
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [models, setModels] = useState<Model[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
-  const [evals, setEvals] = useState<Eval[]>([]);
+  const [benchmarks, setBenchmarks] = useState<Benchmark[]>([]);
   const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [assigneeUsers, setAssigneeUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState("");
 
   const [dsFilter, setDsFilter] = useState("all");
   const [taskFilter, setTaskFilter] = useState("all");
-  const [evalFilter, setEvalFilter] = useState("all");
+  const [benchmarkFilter, setBenchmarkFilter] = useState("all");
   const [discFilter, setDiscFilter] = useState("all");
   const [collapsedPlanned, setCollapsedPlanned] = useState(true);
 
@@ -46,30 +47,48 @@ export default function Dashboard() {
   const [showModelForm, setShowModelForm] = useState(false);
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [showTaskForm, setShowTaskForm] = useState(false);
-  const [editingEval, setEditingEval] = useState<Eval | null>(null);
-  const [showEvalForm, setShowEvalForm] = useState(false);
+  const [editingBenchmark, setEditingBenchmark] = useState<Benchmark | null>(null);
+  const [showBenchmarkForm, setShowBenchmarkForm] = useState(false);
   const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null);
   const [showDiscussionForm, setShowDiscussionForm] = useState(false);
   const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
 
   const reload = async () => {
-    const [d, m, t, e, dc, tg, au] = await Promise.all([
-      fetch("/api/datasets").then(r => r.json()),
-      fetch("/api/models").then(r => r.json()),
-      fetch("/api/tasks").then(r => r.json()),
-      fetch("/api/evals").then(r => r.json()),
-      fetch("/api/discussions").then(r => r.json()),
-      fetch("/api/tags").then(r => r.json()),
-      fetch("/api/assignees").then(r => r.json()),
-    ]);
-    setDatasets(d);
-    setModels(m);
-    setTasks(t);
-    setEvals(e);
-    setDiscussions(dc);
-    setTagSuggestions((tg || []).map((x: any) => x.name));
-    setAssigneeUsers(au || []);
-    setLoading(false);
+    setLoading(true);
+    setLoadError("");
+    try {
+      // catch response error and show it on the screen instead of showing "Loading..." when sth's mulfunctioning 
+      const readJson = async (url: string) => {
+        const res = await fetch(url);
+        if (!res.ok) {
+          const text = await res.text().catch(() => "");
+          const message = text.match(/"message":"([^"]+)"/)?.[1] || res.statusText;
+          throw new Error(`${url} failed (${res.status}): ${message}`);
+        }
+        return res.json();
+      };
+
+      const [d, m, t, e, dc, tg, au] = await Promise.all([
+        readJson("/api/datasets"),
+        readJson("/api/models"),
+        readJson("/api/tasks"),
+        readJson("/api/benchmarks"),
+        readJson("/api/discussions"),
+        readJson("/api/tags"),
+        readJson("/api/assignees"),
+      ]);
+      setDatasets(d);
+      setModels(m);
+      setTasks(t);
+      setBenchmarks(e);
+      setDiscussions(dc);
+      setTagSuggestions((tg || []).map((x: any) => x.name));
+      setAssigneeUsers(au || []);
+    } catch (e: any) {
+      setLoadError(e.message || "Failed to load dashboard data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   useEffect(() => { reload(); }, []);
@@ -97,7 +116,7 @@ export default function Dashboard() {
     return d.status === dsFilter;
   });
   const filteredTasks = tasks.filter(t => taskFilter === "all" || t.status === taskFilter);
-  const filteredEvals = evals.filter(e => evalFilter === "all" || e.status === evalFilter);
+  const filteredBenchmarks = benchmarks.filter(e => benchmarkFilter === "all" || e.status === benchmarkFilter);
   const filteredDiscussions = discussions.filter(d => discFilter === "all" || d.status === discFilter);
   const openDiscussion = discussions.find(d => d.id === openDiscussionId) || null;
 
@@ -113,9 +132,9 @@ export default function Dashboard() {
     { id: "datasets" as Tab, label: "Datasets", count: datasets.length },
     { id: "models" as Tab, label: "Models", count: models.length },
     { id: "tasks" as Tab, label: "Tasks", count: tasks.length, wip: taskWip },
-    { id: "evals" as Tab, label: "Evals", count: evals.length },
+    { id: "benchmarks" as Tab, label: "Benchmarks", count: benchmarks.length },
     { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
-    { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
+    // { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
   ];
 
   return (
@@ -207,6 +226,23 @@ export default function Dashboard() {
         {loading ? (
           <div style={{ textAlign: "center", padding: 80, color: "#475569", fontFamily: "'Space Mono',monospace", fontSize: 12 }}>
             Loading…
+          </div>
+        ) : loadError ? (
+          <div style={{
+            maxWidth: 760,
+            margin: "48px auto",
+            padding: 22,
+            border: "1px solid rgba(244,114,182,0.24)",
+            borderRadius: 12,
+            background: "rgba(244,114,182,0.05)",
+            color: "#f1f5f9",
+          }}>
+            <div style={{ fontSize: 10, color: "#f472b6", fontFamily: "'Space Mono',monospace", letterSpacing: "0.16em", marginBottom: 8 }}>LOAD ERROR</div>
+            <div style={{ fontSize: 15, fontWeight: 700, marginBottom: 10 }}>Dashboard data failed to load</div>
+            <div style={{ fontSize: 12, color: "#94a3b8", lineHeight: 1.7, fontFamily: "'Space Mono',monospace", whiteSpace: "pre-wrap", wordBreak: "break-word" }}>
+              {loadError}
+            </div>
+            <Button onClick={reload} style={{ marginTop: 18 }}>Retry</Button>
           </div>
         ) : (
           <>
@@ -383,44 +419,44 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* EVALS */}
-            {tab === "evals" && (
+            {/* BENCHMARKS */}
+            {tab === "benchmarks" && (
               <div>
                 <SectionHeader
-                  title="Evaluations"
-                  filterValue={evalFilter}
-                  onFilterChange={setEvalFilter}
+                  title="Benchmark Collections"
+                  filterValue={benchmarkFilter}
+                  onFilterChange={setBenchmarkFilter}
                   filters={[
                     { value: "all", label: "All" },
                     { value: "進行中", label: "進行中" },
                     { value: "完成", label: "完成" },
                     { value: "計劃中", label: "計劃中" },
                   ]}
-                  items={evals}
+                  items={benchmarks}
                   canEdit={canEdit}
-                  onAdd={() => { setEditingEval(null); setShowEvalForm(true); }}
-                  addLabel="+ Eval"
+                  onAdd={() => { setEditingBenchmark(null); setShowBenchmarkForm(true); }}
+                  addLabel="+ Benchmark"
                 />
                 <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill,minmax(380px,1fr))", gap: 14 }}>
-                  {filteredEvals.map(e => (
-                    <EvalCard
-                      key={e.id} e={e} datasets={datasets} models={models}
+                  {filteredBenchmarks.map(e => (
+                    <BenchmarkCard
+                      key={e.id} e={e}
                       canEdit={canEdit}
                       assigneeUsers={assigneeUsers}
-                      onAssign={(assignees) => handleAssign("evals", e.id, assignees)}
-                      onEdit={() => { setEditingEval(e); setShowEvalForm(true); }}
-                      onDelete={() => handleDelete("evals", e.id, e.name)}
+                      onAssign={(assignees) => handleAssign("benchmarks", e.id, assignees)}
+                      onEdit={() => { setEditingBenchmark(e); setShowBenchmarkForm(true); }}
+                      onDelete={() => handleDelete("benchmarks", e.id, e.name)}
                     />
                   ))}
-                  {filteredEvals.length === 0 && (
-                    <EmptyState text="尚無 evaluation" canEdit={canEdit} onAdd={() => setShowEvalForm(true)} />
+                  {filteredBenchmarks.length === 0 && (
+                    <EmptyState text="尚無 benchmark" canEdit={canEdit} onAdd={() => setShowBenchmarkForm(true)} />
                   )}
                 </div>
               </div>
             )}
 
             {/* PIPELINE */}
-            {tab === "pipeline" && (
+            {/* {tab === "pipeline" && (
               <div>
                 <div style={{ marginBottom: 28 }}>
                   <div style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace", letterSpacing: "0.16em", marginBottom: 6 }}>WORKFLOW</div>
@@ -428,7 +464,7 @@ export default function Dashboard() {
                 </div>
                 <PipelineTab canEdit={canEdit} />
               </div>
-            )}
+            )} */}
 
             {/* DISCUSSIONS */}
             {tab === "discussions" && (
@@ -498,12 +534,10 @@ export default function Dashboard() {
         assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
-      <EvalForm
-        open={showEvalForm}
-        onClose={() => setShowEvalForm(false)}
-        initial={editingEval}
-        datasets={datasets}
-        models={models}
+      <BenchmarkForm
+        open={showBenchmarkForm}
+        onClose={() => setShowBenchmarkForm(false)}
+        initial={editingBenchmark}
         suggestions={tagSuggestions}
         assigneeUsers={assigneeUsers}
         onSaved={reload}

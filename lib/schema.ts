@@ -79,7 +79,7 @@ export const tasks = pgTable("tasks", {
   createdBy: varchar("created_by", { length: 64 }),
 });
 
-// ─────────────── EVALS ───────────────
+// ─────────────── BENCHMARKS ───────────────
 export const evals = pgTable("evals", {
   id: varchar("id", { length: 64 }).primaryKey(),
   name: text("name").notNull(),
@@ -148,6 +148,7 @@ export const notes = pgTable("notes", {
 });
 
 // ─────────────── TYPE EXPORTS ───────────────
+// For selecting/inserting database's schema, e.g. SELECT * FROM ... 
 export type Dataset = typeof datasets.$inferSelect;
 export type NewDataset = typeof datasets.$inferInsert;
 export type Model = typeof models.$inferSelect;
@@ -156,6 +157,8 @@ export type Task = typeof tasks.$inferSelect;
 export type NewTask = typeof tasks.$inferInsert;
 export type Eval = typeof evals.$inferSelect;
 export type NewEval = typeof evals.$inferInsert;
+export type Benchmark = Eval;
+export type NewBenchmark = NewEval;
 export type DiscussionComment = {
   id: string;
   author: string;
