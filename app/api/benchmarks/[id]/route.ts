@@ -1,3 +1,4 @@
+// CRUD for specific benchmark(e.g. [id])
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { evals } from "@/lib/schema";
@@ -5,6 +6,7 @@ import { requireEditor } from "@/lib/auth";
 import { normalizeAssignees } from "@/lib/assignees";
 import { eq } from "drizzle-orm";
 
+// modify some column in specific benchmark
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -27,6 +29,7 @@ export async function PATCH(
     const newId = typeof body.id === "string" ? body.id.trim() : "";
     const renaming = newId.length > 0 && newId !== oldId;
 
+    // if user want to rename -> search db first
     if (renaming) {
       const collide = await db
         .select({ id: evals.id })
@@ -41,7 +44,8 @@ export async function PATCH(
       }
       updates.id = newId;
     }
-
+    
+    // update db for user requested modifications
     const [updated] = await db
       .update(evals)
       .set(updates)
