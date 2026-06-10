@@ -1,3 +1,4 @@
+// CRUD for all benchmarks
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { evals, globalTags } from "@/lib/schema";
@@ -32,9 +33,9 @@ export async function POST(req: NextRequest) {
         name: body.name,
         status: body.status || "計劃中",
         description: body.description || "",
-        linkedDatasets: body.linkedDatasets || [],
-        linkedModels: body.linkedModels || [],
-        metrics: body.metrics || [],
+        linkedDatasets: [],
+        linkedModels: [],
+        metrics: [],
         url: body.url || null,
         updatedAt: body.updatedAt || new Date().toISOString().slice(0, 7),
         tags: body.tags || [],

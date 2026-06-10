@@ -1,3 +1,4 @@
+// CRUD for specific benchmark(e.g. [id])
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { evals } from "@/lib/schema";
@@ -5,6 +6,7 @@ import { requireEditor } from "@/lib/auth";
 import { normalizeAssignees } from "@/lib/assignees";
 import { eq } from "drizzle-orm";
 
+// modify some column in specific benchmark
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -18,8 +20,7 @@ export async function PATCH(
     const body = await req.json();
     const updates: any = {};
     const fields = [
-      "name", "status", "description", "linkedDatasets",
-      "linkedModels", "metrics", "url", "updatedAt", "tags", "assignees",
+      "name", "status", "description", "url", "updatedAt", "tags", "assignees",
     ];
     for (const f of fields) if (f in body) updates[f] = body[f];
     if ("assignees" in body) updates.assignees = normalizeAssignees(body.assignees, session);
@@ -28,6 +29,7 @@ export async function PATCH(
     const newId = typeof body.id === "string" ? body.id.trim() : "";
     const renaming = newId.length > 0 && newId !== oldId;
 
+    // if user want to rename -> search db first
     if (renaming) {
       const collide = await db
         .select({ id: evals.id })
@@ -36,13 +38,14 @@ export async function PATCH(
         .limit(1);
       if (collide.length > 0) {
         return NextResponse.json(
-          { error: `ID "${newId}" 已被其他 eval 使用` },
+          { error: `ID "${newId}" 已被其他 benchmark 使用` },
           { status: 409 }
         );
       }
       updates.id = newId;
     }
-
+    
+    // update db for user requested modifications
     const [updated] = await db
       .update(evals)
       .set(updates)

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Chip, ModalityChip, StatusChip, SourceChip, Tag, Metric, LossSparkline } from "./Chips";
 import { AssigneeChips } from "./AssigneeInput";
 import { PRIORITY_META } from "@/lib/tokens";
-import type { Dataset, Model, Task, Eval, Discussion } from "@/lib/schema";
+import type { Dataset, Model, Benchmark, Task, Discussion } from "@/lib/schema";
 
 const EditButtons = ({ canEdit, onEdit, onDelete }: any) => {
   if (!canEdit) return null;
@@ -265,8 +265,8 @@ const LinkedRefs = ({ datasets, models, tasks, dsIds, mIds, tIds }: {
   );
 };
 
-export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
-  e: Eval; datasets: Dataset[]; models: Model[];
+export const BenchmarkCard = ({ e, canEdit, assigneeUsers = [], onAssign, onEdit, onDelete }: {
+  e: Benchmark;
   canEdit: boolean; assigneeUsers?: string[]; onAssign?: (assignees: string[]) => void; onEdit: () => void; onDelete: () => void;
 }) => {
   const [hov, setHov] = useState(false);
@@ -288,7 +288,7 @@ export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onA
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 10, marginBottom: 12 }}>
         <div style={{ display: "flex", flexWrap: "wrap", gap: 6 }}>
           <StatusChip s={e.status} />
-          <Chip label="EVAL" color="#34d399" bg="rgba(52,211,153,0.10)" border="rgba(52,211,153,0.3)" />
+          <Chip label="BENCHMARK" color="#34d399" bg="rgba(52,211,153,0.10)" border="rgba(52,211,153,0.3)" />
           <AssignControl canEdit={canEdit} users={assigneeUsers} assignees={(e as any).assignees || []} onAssign={onAssign} />
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -304,22 +304,6 @@ export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onA
         </div>
       )}
 
-      {e.metrics && e.metrics.length > 0 && (
-        <div style={{ display: "flex", flexWrap: "wrap", gap: 6, marginBottom: 14 }}>
-          {e.metrics.map((m, i) => (
-            <div key={i} style={{
-              display: "inline-flex", alignItems: "baseline", gap: 6,
-              padding: "5px 10px", borderRadius: 7,
-              background: "rgba(52,211,153,0.06)",
-              border: "1px solid rgba(52,211,153,0.2)",
-            }}>
-              <span style={{ fontSize: 10, color: "#475569", fontFamily: "'Space Mono',monospace", letterSpacing: "0.04em" }}>{m.name}</span>
-              <span style={{ fontSize: 12, color: "#34d399", fontFamily: "'Space Mono',monospace", fontWeight: 700 }}>{m.value}</span>
-            </div>
-          ))}
-        </div>
-      )}
-
       {e.tags && e.tags.length > 0 && (
         <div style={{ display: "flex", flexWrap: "wrap", gap: 5, marginBottom: 12 }}>
           {e.tags.map(t => <Tag key={t} label={t} />)}
@@ -327,11 +311,9 @@ export const EvalCard = ({ e, datasets, models, canEdit, assigneeUsers = [], onA
       )}
       <AssigneeChips assignees={(e as any).assignees || []} />
 
-      <LinkedRefs datasets={datasets} models={models} dsIds={e.linkedDatasets} mIds={e.linkedModels} />
-
       <div style={{ marginTop: 12, paddingTop: 10, borderTop: "1px solid rgba(255,255,255,0.05)", display: "flex", justifyContent: "space-between" }}>
         <span style={{ fontSize: 10, color: "#334155", fontFamily: "'Space Mono',monospace" }}>Updated {e.updatedAt}</span>
-        {e.url && <span style={{ fontSize: 10, color: hov ? "#34d399" : "#334155", fontFamily: "'Space Mono',monospace" }}>📊 Result</span>}
+        {e.url && <span style={{ fontSize: 10, color: hov ? "#34d399" : "#334155", fontFamily: "'Space Mono',monospace" }}>Benchmark</span>}
       </div>
     </div>
   );
