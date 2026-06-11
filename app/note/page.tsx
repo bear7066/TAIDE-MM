@@ -36,6 +36,8 @@ export default function NotePage() {
 
         <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.08)" }}></div>
 
+        <p>Collaboration Notes</p>
+
         {/* right */}
         <div style={{ marginLeft: "auto", display: "flex", gap: 20, alignItems: "center" }}>
           <AuthButton session={session} />
@@ -44,8 +46,19 @@ export default function NotePage() {
 
       {/* BODY */}
       <div style={{ flex: 1, overflow: "hidden", padding: "28px 32px", display: "flex", flexDirection: "column" }}>
-        <NotesEditor canEdit={canEdit} />
+        <Editor canEdit={canEdit} />
       </div>
     </div>
   );
+}
+
+const Editor = ({canEdit}: {canEdit?: boolean}) => {
+  return (
+    <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
+      <iframe
+        src="https://editor.brownie.qzz.io/project/taide-mm?iframe=true&markdown=true"
+        style={{ flex: 1, overflow: "hidden", display: "flex", padding: "28px 32px", border: "none", flexDirection: "column" }}
+      />
+    </div>
+  )
 }
