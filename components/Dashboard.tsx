@@ -4,19 +4,19 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import AuthButton from "./AuthButton";
-import { DatasetCard, ModelCard, TaskCard, BenchmarkCard, DiscussionCard } from "./Cards";
+import { DatasetCard, ModelCard, TaskCard, BenchmarkCard } from "./Cards";
 import DatasetForm from "./DatasetForm";
 import ModelForm from "./ModelForm";
 import TaskForm from "./TaskForm";
 import BenchmarkForm from "./BenchmarkForm";
-import DiscussionForm from "./DiscussionForm";
-import DiscussionThreadModal from "./DiscussionThreadModal";
+// import DiscussionForm from "./DiscussionForm";
+// import DiscussionThreadModal from "./DiscussionThreadModal";
 // import PipelineTab from "./PipelineTab";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
-import type { Benchmark, Dataset, Model, Task, Discussion } from "@/lib/schema";
+import type { Benchmark, Dataset, Model, Task } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "benchmarks" | "discussions";
+type Tab = "datasets" | "models" | "tasks" | "benchmarks";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -28,7 +28,7 @@ export default function Dashboard() {
   const [models, setModels] = useState<Model[]>([]);
   const [tasks, setTasks] = useState<Task[]>([]);
   const [benchmarks, setBenchmarks] = useState<Benchmark[]>([]);
-  const [discussions, setDiscussions] = useState<Discussion[]>([]);
+  // const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
   const [assigneeUsers, setAssigneeUsers] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +37,7 @@ export default function Dashboard() {
   const [dsFilter, setDsFilter] = useState("all");
   const [taskFilter, setTaskFilter] = useState("all");
   const [benchmarkFilter, setBenchmarkFilter] = useState("all");
-  const [discFilter, setDiscFilter] = useState("all");
+  // const [discFilter, setDiscFilter] = useState("all");
   const [collapsedPlanned, setCollapsedPlanned] = useState(true);
 
   // Modals
@@ -49,9 +49,9 @@ export default function Dashboard() {
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingBenchmark, setEditingBenchmark] = useState<Benchmark | null>(null);
   const [showBenchmarkForm, setShowBenchmarkForm] = useState(false);
-  const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null);
-  const [showDiscussionForm, setShowDiscussionForm] = useState(false);
-  const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
+  // const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null);
+  // const [showDiscussionForm, setShowDiscussionForm] = useState(false);
+  // const [openDiscussionId, setOpenDiscussionId] = useState<string | null>(null);
 
   const reload = async () => {
     setLoading(true);
@@ -68,12 +68,12 @@ export default function Dashboard() {
         return res.json();
       };
 
-      const [d, m, t, e, dc, tg, au] = await Promise.all([
+      const [d, m, t, e, tg, au] = await Promise.all([
         readJson("/api/datasets"),
         readJson("/api/models"),
         readJson("/api/tasks"),
         readJson("/api/benchmarks"),
-        readJson("/api/discussions"),
+        // readJson("/api/discussions"),
         readJson("/api/tags"),
         readJson("/api/assignees"),
       ]);
@@ -81,7 +81,7 @@ export default function Dashboard() {
       setModels(m);
       setTasks(t);
       setBenchmarks(e);
-      setDiscussions(dc);
+      // setDiscussions(dc);
       setTagSuggestions((tg || []).map((x: any) => x.name));
       setAssigneeUsers(au || []);
     } catch (e: any) {
@@ -117,8 +117,8 @@ export default function Dashboard() {
   });
   const filteredTasks = tasks.filter(t => taskFilter === "all" || t.status === taskFilter);
   const filteredBenchmarks = benchmarks.filter(e => benchmarkFilter === "all" || e.status === benchmarkFilter);
-  const filteredDiscussions = discussions.filter(d => discFilter === "all" || d.status === discFilter);
-  const openDiscussion = discussions.find(d => d.id === openDiscussionId) || null;
+  // const filteredDiscussions = discussions.filter(d => discFilter === "all" || d.status === discFilter);
+  // const openDiscussion = discussions.find(d => d.id === openDiscussionId) || null;
 
   const totalSamples = datasets.reduce((sum, d) => {
     const n = parseInt((d.samples || "").replace(/[^0-9]/g, ""));
@@ -133,7 +133,7 @@ export default function Dashboard() {
     { id: "models" as Tab, label: "Models", count: models.length },
     { id: "tasks" as Tab, label: "Tasks", count: tasks.length, wip: taskWip },
     { id: "benchmarks" as Tab, label: "Benchmarks", count: benchmarks.length },
-    { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
+    // { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
     // { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
   ];
 
@@ -467,7 +467,7 @@ export default function Dashboard() {
             )} */}
 
             {/* DISCUSSIONS */}
-            {tab === "discussions" && (
+            {/* {tab === "discussions" && (
               <div>
                 <SectionHeader
                   title="Discussions"
@@ -502,7 +502,7 @@ export default function Dashboard() {
                   )}
                 </div>
               </div>
-            )}
+            )} */}
           </>
         )}
       </div>
@@ -542,7 +542,7 @@ export default function Dashboard() {
         assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
-      <DiscussionForm
+      {/* <DiscussionForm
         open={showDiscussionForm}
         onClose={() => setShowDiscussionForm(false)}
         initial={editingDiscussion}
@@ -552,14 +552,14 @@ export default function Dashboard() {
         suggestions={tagSuggestions}
         assigneeUsers={assigneeUsers}
         onSaved={reload}
-      />
-      <DiscussionThreadModal
+      /> */}
+      {/* <DiscussionThreadModal
         open={!!openDiscussion}
         discussion={openDiscussion}
         canEdit={canEdit}
         onClose={() => setOpenDiscussionId(null)}
         onSaved={reload}
-      />
+      /> */}
     </div>
   );
 }
