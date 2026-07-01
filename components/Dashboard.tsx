@@ -4,19 +4,19 @@ import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import AuthButton from "./AuthButton";
-import { DatasetCard, ModelCard, TaskCard, BenchmarkCard } from "./Cards";
+import { DatasetCard, ModelCard, BenchmarkCard } from "./Cards";
 import DatasetForm from "./DatasetForm";
 import ModelForm from "./ModelForm";
-import TaskForm from "./TaskForm";
+// import TaskForm from "./TaskForm";
 import BenchmarkForm from "./BenchmarkForm";
 // import DiscussionForm from "./DiscussionForm";
 // import DiscussionThreadModal from "./DiscussionThreadModal";
 // import PipelineTab from "./PipelineTab";
 import { Button } from "./Modal";
 import { STATUS_META } from "@/lib/tokens";
-import type { Benchmark, Dataset, Model, Task } from "@/lib/schema";
+import type { Benchmark, Dataset, Model } from "@/lib/schema";
 
-type Tab = "datasets" | "models" | "tasks" | "benchmarks";
+type Tab = "datasets" | "models" | "benchmarks";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -26,7 +26,7 @@ export default function Dashboard() {
   const [tab, setTab] = useState<Tab>("datasets");
   const [datasets, setDatasets] = useState<Dataset[]>([]);
   const [models, setModels] = useState<Model[]>([]);
-  const [tasks, setTasks] = useState<Task[]>([]);
+  // const [tasks, setTasks] = useState<Task[]>([]);
   const [benchmarks, setBenchmarks] = useState<Benchmark[]>([]);
   // const [discussions, setDiscussions] = useState<Discussion[]>([]);
   const [tagSuggestions, setTagSuggestions] = useState<string[]>([]);
@@ -35,18 +35,18 @@ export default function Dashboard() {
   const [loadError, setLoadError] = useState("");
 
   const [dsFilter, setDsFilter] = useState("all");
-  const [taskFilter, setTaskFilter] = useState("all");
+  // const [taskFilter, setTaskFilter] = useState("all");
   const [benchmarkFilter, setBenchmarkFilter] = useState("all");
   // const [discFilter, setDiscFilter] = useState("all");
-  const [collapsedPlanned, setCollapsedPlanned] = useState(true);
+  // const [collapsedPlanned, setCollapsedPlanned] = useState(true);
 
   // Modals
   const [editingDataset, setEditingDataset] = useState<Dataset | null>(null);
   const [showDatasetForm, setShowDatasetForm] = useState(false);
   const [editingModel, setEditingModel] = useState<Model | null>(null);
   const [showModelForm, setShowModelForm] = useState(false);
-  const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [showTaskForm, setShowTaskForm] = useState(false);
+  // const [editingTask, setEditingTask] = useState<Task | null>(null);
+  // const [showTaskForm, setShowTaskForm] = useState(false);
   const [editingBenchmark, setEditingBenchmark] = useState<Benchmark | null>(null);
   const [showBenchmarkForm, setShowBenchmarkForm] = useState(false);
   // const [editingDiscussion, setEditingDiscussion] = useState<Discussion | null>(null);
@@ -68,10 +68,10 @@ export default function Dashboard() {
         return res.json();
       };
 
-      const [d, m, t, e, tg, au] = await Promise.all([
+      const [d, m, e, tg, au] = await Promise.all([
         readJson("/api/datasets"),
         readJson("/api/models"),
-        readJson("/api/tasks"),
+        // readJson("/api/tasks"),
         readJson("/api/benchmarks"),
         // readJson("/api/discussions"),
         readJson("/api/tags"),
@@ -79,7 +79,7 @@ export default function Dashboard() {
       ]);
       setDatasets(d);
       setModels(m);
-      setTasks(t);
+      // setTasks(t);
       setBenchmarks(e);
       // setDiscussions(dc);
       setTagSuggestions((tg || []).map((x: any) => x.name));
@@ -115,7 +115,7 @@ export default function Dashboard() {
     if (["video", "audio", "image", "text"].includes(dsFilter)) return d.modality === dsFilter;
     return d.status === dsFilter;
   });
-  const filteredTasks = tasks.filter(t => taskFilter === "all" || t.status === taskFilter);
+  // const filteredTasks = tasks.filter(t => taskFilter === "all" || t.status === taskFilter);
   const filteredBenchmarks = benchmarks.filter(e => benchmarkFilter === "all" || e.status === benchmarkFilter);
   // const filteredDiscussions = discussions.filter(d => discFilter === "all" || d.status === discFilter);
   // const openDiscussion = discussions.find(d => d.id === openDiscussionId) || null;
@@ -125,13 +125,13 @@ export default function Dashboard() {
     return sum + (isNaN(n) ? 0 : n);
   }, 0);
   const dsDone = datasets.filter(d => d.status === "完成").length;
-  const taskDone = tasks.filter(t => t.status === "完成").length;
-  const taskWip = tasks.filter(t => t.status === "進行中").length;
+  // const taskDone = tasks.filter(t => t.status === "完成").length;
+  // const taskWip = tasks.filter(t => t.status === "進行中").length;
 
   const tabs = [
     { id: "datasets" as Tab, label: "Datasets", count: datasets.length },
     { id: "models" as Tab, label: "Models", count: models.length },
-    { id: "tasks" as Tab, label: "Tasks", count: tasks.length, wip: taskWip },
+    // { id: "tasks" as Tab, label: "Tasks", count: tasks.length, wip: taskWip },
     { id: "benchmarks" as Tab, label: "Benchmarks", count: benchmarks.length },
     // { id: "discussions" as Tab, label: "Discussions", count: discussions.length },
     // { id: "pipeline" as Tab, label: "Pipeline", count: 0 },
@@ -209,7 +209,7 @@ export default function Dashboard() {
           {[
             { val: totalSamples > 0 ? `${(totalSamples / 1000).toFixed(0)}K+` : "—", label: "Total Samples" },
             { val: `${dsDone}/${datasets.length}`, label: "Datasets Done" },
-            { val: `${taskDone}/${tasks.length}`, label: "Tasks Done" },
+            // { val: `${taskDone}/${tasks.length}`, label: "Tasks Done" },
           ].map(s => (
             <div key={s.label} style={{ textAlign: "right" }}>
               <div style={{ fontSize: 14, fontWeight: 700, fontFamily: "'Space Mono',monospace", color: "#f1f5f9" }}>{s.val}</div>
@@ -312,7 +312,7 @@ export default function Dashboard() {
             )}
 
             {/* TASKS */}
-            {tab === "tasks" && (
+            {/* {tab === "tasks" && (
               <div>
                 <SectionHeader
                   title="Tasks"
@@ -417,7 +417,7 @@ export default function Dashboard() {
                   </div>
                 )}
               </div>
-            )}
+            )} */}
 
             {/* BENCHMARKS */}
             {tab === "benchmarks" && (
@@ -524,7 +524,7 @@ export default function Dashboard() {
         assigneeUsers={assigneeUsers}
         onSaved={reload}
       />
-      <TaskForm
+      {/* <TaskForm
         open={showTaskForm}
         onClose={() => setShowTaskForm(false)}
         initial={editingTask}
@@ -533,7 +533,7 @@ export default function Dashboard() {
         suggestions={tagSuggestions}
         assigneeUsers={assigneeUsers}
         onSaved={reload}
-      />
+      /> */}
       <BenchmarkForm
         open={showBenchmarkForm}
         onClose={() => setShowBenchmarkForm(false)}
