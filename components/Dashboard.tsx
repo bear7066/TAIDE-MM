@@ -200,7 +200,19 @@ export default function Dashboard() {
             cursor: "pointer", transition: "all 0.18s",
             textDecoration: "none",
           }}>
-            Notes
+            Note
+          </Link>
+          <Link href="/board" style={{
+            display: "flex", alignItems: "center", gap: 6,
+            padding: "6px 14px", borderRadius: 8,
+            fontSize: 12, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 400,
+            background: "transparent",
+            border: "1px solid transparent",
+            color: "#475569",
+            cursor: "pointer", transition: "all 0.18s",
+            textDecoration: "none",
+          }}>
+            Board
           </Link>
         </div>
 
