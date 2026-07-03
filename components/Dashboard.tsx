@@ -217,6 +217,13 @@ export default function Dashboard() {
             </div>
           ))}
           <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.08)" }}></div>
+          <Link href="https://github.com/taide2026/taide-mm" target="_blank" style={{
+            display: "flex", alignItems: "center", gap: 2,
+            fontSize: 12, fontWeight: 600, color: "#475569",
+            cursor: "pointer", textDecoration: "none",
+          }}>
+            Repo<span style={{ fontSize: 11, marginLeft: 0, color: "#475569"}}>↗</span>
+          </Link>
           <AuthButton session={session} />
         </div>
       </div>
