@@ -35,9 +35,8 @@ export default function NotePage() {
 
         <div style={{ width: 1, height: 20, background: "rgba(255,255,255,0.08)" }}></div>
 
-        <p>Collaboration Note</p>
-
-        <Link href="/board" style={{
+        <p>Collaboration Board</p>
+        <Link href="/note" style={{
           display: "flex", alignItems: "center", gap: 6,
           padding: "6px 14px", borderRadius: 8,
           fontSize: 12, fontFamily: "'Space Grotesk',sans-serif", fontWeight: 400,
@@ -47,7 +46,7 @@ export default function NotePage() {
           cursor: "pointer", transition: "all 0.18s",
           textDecoration: "none",
         }}>
-          Go to Board
+          Go to Note
         </Link>
 
         {/* right */}
@@ -68,9 +67,10 @@ const Editor = ({canEdit}: {canEdit?: boolean}) => {
   return (
     <div style={{ display: "flex", flexDirection: "column", height: "100%" }}>
       <iframe
-        src="https://editor.brownie.qzz.io/project/taide-mm?iframe=true&markdown=true"
+        src="https://editor.brownie.qzz.io/board/taide-mm?iframe=true"
         style={{ flex: 1, overflow: "hidden", display: "flex", padding: "28px 32px", border: "none", flexDirection: "column" }}
       />
     </div>
   )
 }
+
